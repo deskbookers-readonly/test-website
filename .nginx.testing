@@ -4,11 +4,11 @@ server {
     #######################################
 
     listen 80;
-    server_name test-webserver;
-    root /var/www/test-webserver;
+    server_name test-website;
+    root /var/www/test-website;
 
-    access_log /var/log/nginx/test-webserver.access.log;
-    error_log /var/log/nginx/test-webserver.error.log notice;
+    access_log /var/log/nginx/test-website.access.log;
+    error_log /var/log/nginx/test-website.error.log notice;
 
     index index.php;
 
