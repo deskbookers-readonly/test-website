@@ -1,0 +1,85 @@
+server {
+    #######################################
+    # Server config
+    #######################################
+
+    listen 80;
+    server_name test-webserver;
+    root /var/www/test-webserver;
+
+    access_log /var/log/nginx/test-webserver.access.log;
+    error_log /var/log/nginx/test-webserver.error.log notice;
+
+    index index.php;
+
+    #######################################
+    # Special URLs
+    #######################################
+
+    # Protect folders/files
+    rewrite '^/((?:application|database|kohana|migrations|modules|task\.php|migrate\.php|cli\.php)\b.*)' /index.php/$1 last;
+
+    # Upload URLs
+    rewrite '^/uploads/([0-9a-f]{2})([0-9a-f]{38})/([0-9]+(?:\.[0-9]+x[0-9]+x[01])?)(?:/.+)?(\.[^.]+)$' /uploads/$1/$1$2/$3$4 last;
+
+    # Robots
+    location /robot.txt
+    {
+        try_files /robots.php last;
+    }
+
+    # Cache for assets
+    location ~* ^/css/|^/js/
+    {
+        expires 168h;
+        add_header Pragma public;
+        add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+    }
+
+    # Block hidden files
+    location ~ /\.
+    {
+        deny all;
+    }
+
+    #######################################
+    # PHP / Kohana
+    #######################################
+
+    # Start point
+    location /
+    {
+        if (!-e $request_filename)
+        {
+            rewrite ^/(.*)$ /index.php/$1 last;
+        }
+    }
+
+    # PHP
+    location ~* \.php$
+    {
+        try_files $uri $uri/;
+
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param KOHANA_ENV "testing";
+        include fastcgi_params;
+    }
+    
+    # Kohana routing
+    set $path_info "";
+    location /index.php
+    {
+        if ($uri ~ "^/index.php(/.+)$")
+        {
+            set $path_info $1;
+        }
+        
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root/index.php;
+        fastcgi_param KOHANA_ENV "testing";
+        include fastcgi_params;
+    }
+}
