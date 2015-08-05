@@ -4,11 +4,11 @@ server {
     #######################################
 
     listen 80;
-    server_name test-website;
-    root /var/www/test-website;
+    server_name aws-test-website.deskbookers.com;
+    root /var/www/aws-test-website.deskbookers.com;
 
-    access_log /var/log/nginx/test-website.access.log;
-    error_log /var/log/nginx/test-website.error.log notice;
+    access_log /var/log/nginx/aws-test-website.deskbookers.com.access.log;
+    error_log /var/log/nginx/aws-test-website.deskbookers.com.error.log notice;
 
     index index.php;
 
